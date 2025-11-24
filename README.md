@@ -66,25 +66,25 @@ The pipeline ingests raw data from GitHub, processes it incrementally using Data
 - Access Connector for Databricks
 
 
-📥 2. ADF Pipeline for Data Ingestion (GitHub → ADLS Bronze)
+# 📥 2. ADF Pipeline for Data Ingestion (GitHub → ADLS Bronze)
 
 
-✔️ Copy Activity
+### ✔️ Copy Activity
 
 - Pulls CSV files directly from a public GitHub repo using a HTTPS linked service.
 
 - ADLS Gen2 is the sink linked service.
 
-✔️ Pipeline Parameters
+### ✔️ Pipeline Parameters
 
 - Parameter	Purpose
-- 
+  
 - folder_name	Bronze folder path
  
 - file_name	Name of the file to pull from GitHub
 
   
-✔️ ForEach Activity
+### ✔️ ForEach Activity
 
 - Used because multiple files must be copied:
 
@@ -92,7 +92,7 @@ The pipeline ingests raw data from GitHub, processes it incrementally using Data
 
 - Executes the copy activity dynamically
  
-✔️ Validation Activity
+### ✔️ Validation Activity
 
 Before loading:
 
@@ -100,7 +100,7 @@ Before loading:
 
 - Only proceeds when validation passes
 
-✔️ Web Activity + Set Variable
+### ✔️ Web Activity + Set Variable
 
 - Web activity sends a GET request to GitHub REST API
 
@@ -109,10 +109,10 @@ Before loading:
 - "Set Variable" stores the JSON response → used for iteration
 - 
 
-⚡ 3. Databricks Processing (Bronze → Silver → Gold)
+# ⚡ 3. Databricks Processing (Bronze → Silver → Gold)
 
 
-3.1 Auto Loader Pipeline (Bronze Loader)
+## 3.1 Auto Loader Pipeline (Bronze Loader)
 
 - A Databricks notebook that:
 
@@ -125,7 +125,7 @@ Before loading:
 - Output Format: CSV → Delta (Bronze)
   
 
-3.2 Parameterized Notebook (Silver Loader)
+## 3.2 Parameterized Notebook (Silver Loader)
 
 ## Purpose:
 
@@ -144,7 +144,7 @@ Before loading:
 
   
 
-# 3.3 Scheduled Weekly Transformations
+## 3.3 Scheduled Weekly Transformations
 
 
 ### Using Databricks Jobs, I scheduled:
@@ -155,7 +155,7 @@ Before loading:
 
   
 
-# 3.4 Silver → Gold Processing
+## 3.4 Silver → Gold Processing
 
 
 ### A parameterized Gold notebook:
@@ -174,7 +174,6 @@ Before loading:
 ### Gold tables are consumed in:
 
 - Tableau
-
 
 
 - These datasets are optimized for:
