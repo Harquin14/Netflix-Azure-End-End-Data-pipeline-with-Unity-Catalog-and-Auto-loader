@@ -46,3 +46,141 @@ The pipeline ingests raw data from GitHub, processes it incrementally using Data
 - File Format: Delta
 
 - Aggregations, business rules, KPI datasets for BI tools
+
+
+
+  🔄 Pipeline Flow
+  
+1. Azure Resources Created
+
+- I deployed all required cloud components:
+
+- Resource Group
+
+- Azure Data Lake Gen2
+
+- Azure Data Factory
+
+- Databricks Workspace (Unity Catalog enabled)
+
+- Access Connector for Databricks
+
+
+📥 2. ADF Pipeline for Data Ingestion (GitHub → ADLS Bronze)
+
+
+✔️ Copy Activity
+
+- Pulls CSV files directly from a public GitHub repo using a HTTPS linked service.
+
+- ADLS Gen2 is the sink linked service.
+
+✔️ Pipeline Parameters
+
+- Parameter	Purpose
+- 
+- folder_name	Bronze folder path
+ 
+- file_name	Name of the file to pull from GitHub
+
+  
+✔️ ForEach Activity
+
+- Used because multiple files must be copied:
+
+- Iterates through each file reference
+
+- Executes the copy activity dynamically
+ 
+✔️ Validation Activity
+
+Before loading:
+
+- Checks if expected marker file exists in ADLS
+
+- Only proceeds when validation passes
+
+✔️ Web Activity + Set Variable
+
+- Web activity sends a GET request to GitHub REST API
+
+- Extracts metadata of files (filenames, updated timestamps)
+
+- "Set Variable" stores the JSON response → used for iteration
+- 
+
+⚡ 3. Databricks Processing (Bronze → Silver → Gold)
+
+
+3.1 Auto Loader Pipeline (Bronze Loader)
+
+- A Databricks notebook that:
+
+- Listens to the raw_data directory in ADLS
+
+- Ingests files incrementally using Auto Loader
+
+- Writes clean Bronze tables registered in Unity Catalog
+
+- Output Format: CSV → Delta (Bronze)
+  
+
+3.2 Parameterized Notebook (Silver Loader)
+
+## Purpose:
+
+- Process multiple datasets dynamically
+
+- Enforce schema, cast datatypes, drop nulls, clean bad rows
+
+- This notebook is triggered from Databricks Jobs with parameters such as:
+
+      table_name
+      input_path
+      output_path
+
+
+- Output Format: Delta (Silver)
+
+  
+
+# 3.3 Scheduled Weekly Transformations
+
+
+### Using Databricks Jobs, I scheduled:
+
+- Data cleaning & transformations every Sunday
+
+- Ensures Silver data remains clean and up-to-date
+
+  
+
+# 3.4 Silver → Gold Processing
+
+
+### A parameterized Gold notebook:
+
+- Runs business logic
+
+- Performs aggregations
+
+- Builds KPI datasets for analytics
+
+- Output Format: Delta (Gold)
+- 
+
+# 📊 4. Reporting Layer
+
+### Gold tables are consumed in:
+
+- Tableau
+
+
+
+- These datasets are optimized for:
+
+- Dashboards
+
+- KPIs
+
+- Real-time insights
