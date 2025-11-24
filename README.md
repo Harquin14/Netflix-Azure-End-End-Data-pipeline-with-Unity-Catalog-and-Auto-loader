@@ -49,9 +49,11 @@ The pipeline ingests raw data from GitHub, processes it incrementally using Data
 
 
 
-  🔄 Pipeline Flow
+ #  🔄 Pipeline Flow
+
+ 
   
-1. Azure Resources Created
+# 1. Azure Resources Created
 
 - I deployed all required cloud components:
 
